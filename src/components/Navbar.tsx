@@ -3,15 +3,31 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { useAuth } from '@/context/AuthContext';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 const Navbar: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const { user, loading } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
 
   const navigation = [
     { name: 'Home', href: '/' },
-    { name: 'Profile', href: '/profile' },
-    { name: 'My Group', href: '/mygroup' },
+    { name: 'Profile Setup', href: '/profile-setup' },
+    { name: 'Check In', href: '/checkin' },
+    { name: 'My Groups', href: '/mygroup' },
+    { name: 'Chat', href: '/chat' },
+    { name: 'Q&A', href: '/qa' },
+    { name: 'Captions', href: '/captions' },
     { name: 'Notes', href: '/notes' },
     { name: 'Admin', href: '/admin' },
   ];
@@ -43,9 +59,26 @@ const Navbar: React.FC = () => {
             </div>
           </div>
           <div className="hidden sm:ml-6 sm:flex sm:items-center">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200">
-              Sign In
-            </button>
+            {loading ? (
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+            ) : user ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm text-gray-700">Welcome, {user.email}</span>
+                <button 
+                  onClick={handleLogout}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors duration-200"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
           <div className="sm:hidden flex items-center">
             <button
@@ -96,9 +129,26 @@ const Navbar: React.FC = () => {
         </div>
         <div className="pt-4 pb-3 border-t border-gray-200">
           <div className="flex items-center px-4">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium w-full transition-colors duration-200">
-              Sign In
-            </button>
+            {loading ? (
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600 mx-auto"></div>
+            ) : user ? (
+              <div className="w-full space-y-2">
+                <div className="text-sm text-gray-700 text-center">Welcome, {user.email}</div>
+                <button 
+                  onClick={handleLogout}
+                  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm font-medium w-full transition-colors duration-200"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link
+                href="/login"
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium w-full transition-colors duration-200 text-center block"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       </div>
